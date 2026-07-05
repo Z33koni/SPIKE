@@ -1,6 +1,6 @@
 import math
-from spike.v1.primitive import mV, ms
 from dataclasses import dataclass, field
+from spike.v1.primitive import mV, ms
 
 
 @dataclass
