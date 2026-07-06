@@ -12,7 +12,6 @@ class RefractoryKernel:
 
     def __post_init__(self):
         self.tau_constant = math.exp(-(1.0 / self.tau))
-    
 
 @dataclass
 class RefractoryModel:
@@ -45,6 +44,9 @@ class Membrane:
     
     # The number of ms in the refractory period.
     refractory_model: RefractoryModel = field(default_factory=RefractoryModel)
+    
+    # Did this membrane fire in the last tick
+    fired: bool = field(default_factory=bool)
 
     def __post_init__(self):
         if self.potential_curr is None:
@@ -66,14 +68,14 @@ class Membrane:
         )
 
         # Determine if we should spike.
-        spike: bool = (
+        self.spike: bool = (
             self.potential_prev <  self.firing_potential and 
             self.potential_curr >= self.firing_potential
         )
 
-        if spike:
+        if self.spike:
             self.potential_curr = self.reset_potential
         
-        self.refractory_model.tick(spike)
+        self.refractory_model.tick(self.spike)
 
-        return spike
+        return self.spike
