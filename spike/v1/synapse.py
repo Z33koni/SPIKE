@@ -68,19 +68,37 @@ class SynapseModel:
         )
 
 DefaultRecvSynapseModel = SynapseModel(
-    synaptic_amplitude=(1.0, 5.0),
-    synaptic_delay=(0, 48),
-    synaptic_tau=(1, 32),
+    # External/input drive: allowed to be meaningful,
+    # but not enough to dominate through fan-in.
+    synaptic_amplitude=(6.0, 10.0),
+
+    # Delays create temporal basis / phase offsets.
+    synaptic_delay=(0, 0),
+
+    # Faster decay preserves timing; less DC buildup.
+    synaptic_tau=(2, 10),
 )
 
 DefaultDataSynapseModel = SynapseModel(
-    synaptic_amplitude=(.5, 8.0),
-    synaptic_delay=(0, 20),
-    synaptic_tau=(4, 32),
+    # Recurrent data graph must be weak.
+    # This is the most important change.
+    synaptic_amplitude=(0.05, 0.50),
+
+    # Avoid zero-delay recurrent feedback loops.
+    synaptic_delay=(1, 32),
+
+    # Short/moderate memory. Prevent persistent excitation clouds.
+    synaptic_tau=(2, 12),
 )
 
 DefaultSendSynapseModel = SynapseModel(
-    synaptic_amplitude=(2.0, 10.0),
-    synaptic_delay=(0, 4),
-    synaptic_tau=(4, 16),
+    # Readout can be stronger than recurrence,
+    # but should integrate evidence, not saturate instantly.
+    synaptic_amplitude=(6.0, 12),
+
+    # Small delay: readout should be near-causal.
+    synaptic_delay=(0, 8),
+
+    # Moderate integration window.
+    synaptic_tau=(4, 20),
 )

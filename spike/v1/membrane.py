@@ -19,13 +19,12 @@ class RefractoryModel:
     kernel: RefractoryKernel = field(default_factory=RefractoryKernel)
     potential: mV = mV(0.0)
 
-    def tick(self, spike: bool):
+    def tick(self):
         self.potential *= self.kernel.tau_constant
-        if spike:
-            self.potential -= self.amplitude
-        
         return self.potential
-
+    
+    def fire(self):
+        self.potential += self.amplitude
 
 @dataclass
 class Membrane:
@@ -46,7 +45,7 @@ class Membrane:
     refractory_model: RefractoryModel = field(default_factory=RefractoryModel)
     
     # Did this membrane fire in the last tick
-    fired: bool = field(default_factory=bool)
+    spike: bool = field(default_factory=bool)
 
     def __post_init__(self):
         if self.potential_curr is None:
@@ -59,12 +58,15 @@ class Membrane:
     def tick(self, synaptic_potential: mV) -> bool:
         # Move over the previous potential.
         self.potential_prev = self.potential_curr
+        
+        # Compute the refractory.
+        refractory = self.refractory_model.tick()
 
         # Check if we should spike.
         self.potential_curr = (
-                self.resting_potential + 
-                synaptic_potential + 
-                self.refractory_model.potential
+                  self.resting_potential 
+                + synaptic_potential 
+                - refractory
         )
 
         # Determine if we should spike.
@@ -75,7 +77,6 @@ class Membrane:
 
         if self.spike:
             self.potential_curr = self.reset_potential
-        
-        self.refractory_model.tick(self.spike)
+            self.refractory_model.fire()
 
         return self.spike

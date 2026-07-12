@@ -21,12 +21,19 @@ class Neuron:
     dendrite: Dendrite = field(default_factory=Dendrite)
     membrane: Membrane = field(default_factory=Membrane)
     axon: Axon = field(default_factory=Axon)
+    logging: bool = False
     
     @staticmethod
     def next_id():
         return next(Neuron.__counter)
+
+    def enable_logging(self):
+        self.logging = True
     
     def tick(self, synaptic_potentials: list[mV]) -> bool:
+        if self.logging:
+            print(synaptic_potentials)
+
         synaptic_potential = self.dendrite.tick(synaptic_potentials)
         membrane_fired = self.membrane.tick(synaptic_potential)
 
@@ -81,19 +88,19 @@ DefaultRecvNeuronModel = NeuronModel(
     membrane_firing_potential=(-55.0, -55.0),
     membrane_reset_potential=(-70.0, -70.0),
 
-    membrane_refractory_amplitude=(0.0, 0.0),
-    membrane_refractory_tau=(1, 1),
+    membrane_refractory_amplitude=(8.0, 8.0),
+    membrane_refractory_tau=(4, 4),
 )
 
 DefaultDataNeuronModel = NeuronModel(
     # Membrane: near-biological LIF-ish values.
     membrane_resting_potential=(-72.0, -68.0),
-    membrane_firing_potential=(-58.0, -52.0),
-    membrane_reset_potential=(-74.0, -68.0),
+    membrane_firing_potential=(-64.0, -60.0),
+    membrane_reset_potential=(-80.0, -74.5),
 
     # Refractory: enough suppression to prevent constant chatter.
-    membrane_refractory_amplitude=(8.0, 20.0),
-    membrane_refractory_tau=(4, 32),
+    membrane_refractory_amplitude=(12.0, 20.0),
+    membrane_refractory_tau=(4, 16),
 )
 
 DefaultSendNeuronModel = NeuronModel(

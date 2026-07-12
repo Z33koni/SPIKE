@@ -7,6 +7,7 @@ from spike.v1.synapse import Synapse
 @dataclass
 class Dendrite:
     def tick(self, synaptic_potentials: list[mV]) -> mV:
+        assert len(synaptic_potentials) > 0
         assert isinstance(synaptic_potentials[0], float)
         return mV(sum(synaptic_potentials))
 
